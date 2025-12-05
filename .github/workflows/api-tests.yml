@@ -1,0 +1,34 @@
+# .github/workflows/api-tests.yml
+name: API + UI Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest requests playwright pytest-playwright
+          playwright install chromium --with-deps
+
+      - name: Run all tests
+        run: |
+          pytest tests/ -v --junitxml=report.xml
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report
+          path: report.xml
